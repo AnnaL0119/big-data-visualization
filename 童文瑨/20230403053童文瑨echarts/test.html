@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>2024国内旅游景点可视化看板-紫色主题</title>
+    <!-- 优先加载ECharts与中国地图 -->
+    <script src="echarts.min.js"></script>
+    <script src="china.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #f8f5fd;
+            /* 浅紫背景 */
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4a148c;
+            font-size: 36px;
+            margin: 0 0 12px;
+        }
+        
+        h2 {
+            text-align: center;
+            color: #6a1b9a;
+            font-size: 22px;
+            margin: 0 0 30px;
+        }
+        /* 看板网格布局，和截图完全对应 */
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 18px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 12px rgba(106, 27, 154, 0.12);
+            border: 1px solid #e9dcf7;
+        }
+        
+        .card h3 {
+            margin: 0 0 16px;
+            font-size: 16px;
+            color: #4a148c;
+            text-align: center;
+        }
+        
+        .chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .map-chart {
+            height: 520px;
+        }
+        /* 顶部三个统计指标 */
+        
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-item {
+            flex: 1;
+            text-align: center;
+            padding: 14px 8px;
+            background: #f3e5fc;
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #7b1fa2;
+            margin-bottom: 6px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6a1b9a;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>2024年国内旅游景点数据可视化面板）</h1>
+
+    <div class="dashboard">
+        <!-- 左上：气泡图 流量&满意度&月份 -->
+        <div class="card">
+            <h3>景点游客流量、满意度与月份关系</h3>
+            <div id="bubbleChart" class="chart"></div>
+        </div>
+
+        <!-- 中间大模块：3个统计 + 中国地图 -->
+        <div class="card" style="grid-row: span 2;">
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-value">4.2亿</div>
+                    <div class="stat-label">全年游客总量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">3.8万亿</div>
+                    <div class="stat-label">旅游总收入</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">91.2%</div>
+                    <div class="stat-label">平均满意度</div>
+                </div>
+            </div>
+            <h3>各省旅游人数</h3>
+            <div id="mapChart" class="map-chart"></div>
+        </div>
+
+        <!-- 右上：雷达图 景点评分对比 -->
+        <div class="card">
+            <h3>景点综合评分对比</h3>
+            <div id="radarChart" class="chart"></div>
+        </div>
+
+        <!-- 左下：折线图 三年趋势 -->
+        <div class="card">
+            <h3>近三年游客人次趋势分析</h3>
+            <div id="lineChart" class="chart"></div>
+        </div>
+
+        <!-- 右下：环形饼图 景点类型占比 -->
+        <div class="card">
+            <h3>各类型景点游客占比</h3>
+            <div id="pieChart" class="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化所有图表
+        const bubbleChart = echarts.init(document.getElementById('bubbleChart'));
+        const mapChart = echarts.init(document.getElementById('mapChart'));
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        const lineChart = echarts.init(document.getElementById('lineChart'));
+        const pieChart = echarts.init(document.getElementById('pieChart'));
+
+        // ===================== 1. 气泡图 紫色配色 =====================
+        const bubbleOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: params => `月份：${params.name}<br>游客量：${params.value[1]}万人次<br>满意度：${params.value[2]}%`
+            },
+            legend: {
+                data: ['热门景点', '普通景点'],
+                bottom: 8,
+                textStyle: {
+                    color: '#4a148c'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+                name: '月份',
+                nameTextStyle: {
+                    color: '#6a1b9a'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#d1c4e9'
+                    }
+                },
+                axisLabel: {
+                    color: '#4a148c'
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '游客流量(人次)',
+                nameTextStyle: {
+                    color: '#6a1b9a'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#d1c4e9'
+                    }
+                },
+                axisLabel: {
+                    color: '#4a148c'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#ede7f6'
+                    }
+                }
+            },
+            series: [{
+                name: '热门景点',
+                type: 'scatter',
+                symbolSize: data => Math.sqrt(data[1]) * 1.8,
+                itemStyle: {
+                    color: '#7b1fa2'
+                }, // 深紫
+                data: [
+                    [0, 36000, 86],
+                    [1, 48000, 88],
+                    [2, 59000, 90],
+                    [3, 66000, 91],
+                    [4, 72000, 93],
+                    [5, 78000, 94],
+                    [6, 82000, 95]
+                ]
+            }, {
+                name: '普通景点',
+                type: 'scatter',
+                symbolSize: data => Math.sqrt(data[1]) * 1.2,
+                itemStyle: {
+                    color: '#b39ddb'
+                }, // 浅紫
+                data: [
+                    [0, 12000, 77],
+                    [1, 16000, 79],
+                    [2, 22000, 81],
+                    [3, 26000, 83],
+                    [4, 30000, 84],
+                    [5, 33000, 86],
+                    [6, 37000, 87]
+                ]
+            }]
+        };
+
+        // ===================== 2. 中国地图 紫色渐变热力 =====================
+        const mapOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{b}<br>游客量：{c}万人次'
+            },
+            visualMap: {
+                min: 0,
+                max: 1100000,
+                left: 20,
+                bottom: 30,
+                text: ['高', '低'],
+                textStyle: {
+                    color: '#4a148c'
+                },
+                calculable: true,
+                inRange: {
+                    color: ['#f3e5fc', '#d1c4e9', '#b39ddb', '#9575cd', '#7b1fa2', '#4a148c']
+                }
+            },
+            series: [{
+                name: '游客量',
+                type: 'map',
+                map: 'china',
+                roam: true,
+                label: {
+                    color: '#4a148c'
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        color: '#fff'
+                    },
+                    itemStyle: {
+                        areaColor: '#7b1fa2'
+                    }
+                },
+                data: [{
+                    name: '北京',
+                    value: 850000
+                }, {
+                    name: '上海',
+                    value: 920000
+                }, {
+                    name: '广东',
+                    value: 1100000
+                }, {
+                    name: '四川',
+                    value: 780000
+                }, {
+                    name: '云南',
+                    value: 650000
+                }, {
+                    name: '陕西',
+                    value: 580000
+                }, {
+                    name: '浙江',
+                    value: 950000
+                }, {
+                    name: '江苏',
+                    value: 880000
+                }, {
+                    name: '山东',
+                    value: 820000
+                }, {
+                    name: '湖北',
+                    value: 720000
+                }, {
+                    name: '湖南',
+                    value: 690000
+                }, {
+                    name: '重庆',
+                    value: 750000
+                }]
+            }]
+        };
+
+        // ===================== 3. 雷达图 故宫/西湖/黄山 紫色系 =====================
+        const radarOption = {
+            tooltip: {},
+            legend: {
+                data: ['故宫', '西湖', '黄山'],
+                textStyle: {
+                    color: '#4a148c'
+                }
+            },
+            radar: {
+                indicator: [{
+                    name: '景色',
+                    max: 100
+                }, {
+                    name: '安全性',
+                    max: 100
+                }, {
+                    name: '性价比',
+                    max: 100
+                }, {
+                    name: '服务质量',
+                    max: 100
+                }, {
+                    name: '基础设施',
+                    max: 100
+                }],
+                radius: '68%',
+                splitLine: {
+                    lineStyle: {
+                        color: '#d1c4e9'
+                    }
+                },
+                axisName: {
+                    color: '#4a148c'
+                }
+            },
+            series: [{
+                name: '景点评分',
+                type: 'radar',
+                data: [{
+                    name: '故宫',
+                    value: [94, 92, 83, 90, 91],
+                    itemStyle: {
+                        color: '#7b1fa2'
+                    },
+                    areaStyle: {
+                        color: 'rgba(123, 31, 162, 0.12)'
+                    }
+                }, {
+                    name: '西湖',
+                    value: [91, 93, 88, 92, 90],
+                    itemStyle: {
+                        color: '#9575cd'
+                    },
+                    areaStyle: {
+                        color: 'rgba(149, 117, 205, 0.12)'
+                    }
+                }, {
+                    name: '黄山',
+                    value: [96, 88, 90, 86, 85],
+                    itemStyle: {
+                        color: '#b39ddb'
+                    },
+                    areaStyle: {
+                        color: 'rgba(179, 157, 219, 0.12)'
+                    }
+                }]
+            }]
+        };
+
+        // ===================== 4. 折线图 三年游客趋势 紫色渐变 =====================
+        const lineOption = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['2024年', '2023年', '2022年'],
+                textStyle: {
+                    color: '#4a148c'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                axisLine: {
+                    lineStyle: {
+                        color: '#d1c4e9'
+                    }
+                },
+                axisLabel: {
+                    color: '#4a148c'
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '人数(万人次)',
+                nameTextStyle: {
+                    color: '#6a1b9a'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#d1c4e9'
+                    }
+                },
+                axisLabel: {
+                    color: '#4a148c'
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#ede7f6'
+                    }
+                }
+            },
+            series: [{
+                name: '2024年',
+                type: 'line',
+                smooth: true,
+                data: [15, 26, 42, 58, 68, 74, 82, 79, 71, 62, 45, 28],
+                itemStyle: {
+                    color: '#4a148c'
+                },
+                areaStyle: {
+                    color: 'rgba(74, 20, 140, 0.1)'
+                }
+            }, {
+                name: '2023年',
+                type: 'line',
+                smooth: true,
+                data: [22, 35, 51, 66, 75, 80, 88, 84, 76, 67, 50, 34],
+                itemStyle: {
+                    color: '#7b1fa2'
+                },
+                areaStyle: {
+                    color: 'rgba(123, 31, 162, 0.1)'
+                }
+            }, {
+                name: '2022年',
+                type: 'line',
+                smooth: true,
+                data: [32, 44, 63, 77, 86, 92, 105, 98, 89, 78, 61, 42],
+                itemStyle: {
+                    color: '#b39ddb'
+                },
+                areaStyle: {
+                    color: 'rgba(179, 157, 219, 0.1)'
+                }
+            }]
+        };
+
+        // ===================== 5. 环形饼图 景点类型占比 =====================
+        const pieOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a}<br>{b}: {c}% ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 'center',
+                data: ['历史古迹', '自然风光', '主题公园', '文化场馆', '休闲度假', '其他类型'],
+                textStyle: {
+                    color: '#4a148c'
+                }
+            },
+            series: [{
+                name: '游客占比',
+                type: 'pie',
+                radius: ['40%', '72%'],
+                avoidLabelOverlap: false,
+                label: {
+                    show: false
+                },
+                emphasis: {
+                    label: {
+                        show: true,
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        color: '#4a148c'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: [{
+                    value: 22.73,
+                    name: '历史古迹',
+                    itemStyle: {
+                        color: '#4a148c'
+                    }
+                }, {
+                    value: 21.68,
+                    name: '自然风光',
+                    itemStyle: {
+                        color: '#6a1b9a'
+                    }
+                }, {
+                    value: 13.82,
+                    name: '主题公园',
+                    itemStyle: {
+                        color: '#7b1fa2'
+                    }
+                }, {
+                    value: 11.82,
+                    name: '文化场馆',
+                    itemStyle: {
+                        color: '#9575cd'
+                    }
+                }, {
+                    value: 9.45,
+                    name: '休闲度假',
+                    itemStyle: {
+                        color: '#b39ddb'
+                    }
+                }, {
+                    value: 20.50,
+                    name: '其他类型',
+                    itemStyle: {
+                        color: '#d1c4e9'
+                    }
+                }]
+            }]
+        };
+
+        // 渲染全部图表
+        bubbleChart.setOption(bubbleOption);
+        mapChart.setOption(mapOption);
+        radarChart.setOption(radarOption);
+        lineChart.setOption(lineOption);
+        pieChart.setOption(pieOption);
+
+        // 窗口自适应
+        window.addEventListener('resize', () => {
+            bubbleChart.resize();
+            mapChart.resize();
+            radarChart.resize();
+            lineChart.resize();
+            pieChart.resize();
+        });
+    </script>
+</body>
+
+</html>

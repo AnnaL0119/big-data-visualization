@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>现代农业数据看板 | 紧凑地理面板</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+</head>
+<body>
+<div class="dashboard">
+    <div class="main-header">
+        <h1>🌾 现代农业智慧看板 · 地理产值中枢</h1>
+        <p>绿色生态 | 农业总产值热力分布 | 关键指标全景</p>
+    </div>
+
+    <div class="grid-five">
+        <!-- 左上：农产品产量趋势折线图 -->
+        <div class="chart-card card-tl">
+            <div class="card-title">📈 主要农产品产量 <small>万吨 · 近五年</small></div>
+            <div id="trend-line" class="chart-container"></div>
+        </div>
+
+        <!-- 右上：种植结构饼图 -->
+        <div class="chart-card card-tr">
+            <div class="card-title">🥬 种植结构占比 <small>2025 意向</small></div>
+            <div id="pie-structure" class="chart-container"></div>
+        </div>
+
+        <!-- 中间核心：中国农业地理产值热力分布 (地图) -->
+        <div class="chart-card card-center">
+            <div class="card-title">🗺️ 农业产值热力 · 省份地理分布 <small>亿元/2023</small></div>
+            <div id="agriculture-map" class="map-container"></div>
+        </div>
+
+        <!-- 左下：农业大省产值TOP6 横向柱状图 -->
+        <div class="chart-card card-bl">
+            <div class="card-title">🏆 农业大省产值TOP6 <small>2023 亿元</small></div>
+            <div id="bar-ranking" class="chart-container"></div>
+        </div>
+
+        <!-- 右下：农业现代化资源雷达图 -->
+        <div class="chart-card card-br">
+            <div class="card-title">⚙️ 农业现代化指数 <small>生态可持续力</small></div>
+            <div id="radar-modern" class="chart-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 外部脚本 -->
+<script src="js/index.js"></script>
+</body>
+</html>

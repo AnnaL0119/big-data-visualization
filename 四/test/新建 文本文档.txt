@@ -1,0 +1,1 @@
+利用matplotlib进行数据可视化看板的制作  三个核心指标四个以上不同种类图  两种方法subplot和subplot2grid

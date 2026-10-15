@@ -1,0 +1,55 @@
+# ---- Python / Node 环境 ----
+.venv/
+venv/
+env/
+.python-version
+.virtualenv
+__pycache__/
+*.py[cod]
+*.pyd
+node_modules/
+
+# ---- IDE / 编辑器 ----
+.idea/
+.vscode/
+*.iml
+*.swp
+
+# ---- Office 文档 / 演示文稿 ----
+*.ppt
+*.pptx
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.xlsm
+*.pdf
+
+# ---- 压缩包 ----
+*.rar
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# ---- 图片 / 二进制文件 ----
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.exe
+*.dll
+*.lnk
+*.crtx
+*.pem
+*.crt
+*.key
+
+# ---- 临时 / 系统文件 ----
+~$*
+Thumbs.db
+desktop.ini
+.DS_Store

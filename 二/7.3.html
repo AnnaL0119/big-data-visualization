@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>ECharts</title>
+      <script src="echarts.min.js"></script>
+  </head>
+  <body>
+       <div id="main" style="width: 800px;height:800px;"></div>
+    <script type="text/javascript">
+        var myChart = echarts.init(document.getElementById('main'));
+                var option = {
+            title: {
+                text: 'ECharts 实例'
+            },
+            tooltip: {},
+            legend: {
+                data:['考试分数']
+            },
+            xAxis: {
+                data: ["语文","数学","英语","地理","生物","化学"]
+            },
+            yAxis: {},
+            series: [{
+                name: '分数',
+                type: 'bar',
+                data: [75, 80, 76, 90, 80, 60]
+            }]
+        };
+        myChart.setOption(option);
+      </script>
+   </body>
+</html>
